@@ -174,7 +174,47 @@ it('test game won', () => {
 });
 
 it('test cascade exposed cells', () => {
-    
+    /**
+     * x 2 o o
+     * x 3 o o
+     * x 2 o o
+     * 1 1 o o
+     */
+    let game = new GameModel();
+
+    game.createBoard(4,4,3);
+
+    let board = game.board;
+    board.plantMine(0,0);
+    board.plantMine(1,0);
+    board.plantMine(2,0);
+
+    board.markNeighborOfMines();
+
+    board.exposeCell(0,3);
+
+    // all three righmost columns should be exposed
+    expect(board.cells[0][1].exposed).toBe(true);
+    expect(board.cells[1][1].exposed).toBe(true);
+    expect(board.cells[2][1].exposed).toBe(true);
+    expect(board.cells[3][1].exposed).toBe(true);
+
+    expect(board.cells[0][2].exposed).toBe(true);
+    expect(board.cells[1][2].exposed).toBe(true);
+    expect(board.cells[2][2].exposed).toBe(true);
+    expect(board.cells[3][2].exposed).toBe(true);
+
+    expect(board.cells[0][3].exposed).toBe(true);
+    expect(board.cells[1][3].exposed).toBe(true);
+    expect(board.cells[2][3].exposed).toBe(true);
+    expect(board.cells[3][3].exposed).toBe(true);
+
+    // the leftmost column should remine hidden
+    expect(board.cells[0][0].exposed).toBe(false);
+    expect(board.cells[1][0].exposed).toBe(false);
+    expect(board.cells[2][0].exposed).toBe(false);
+    expect(board.cells[3][0].exposed).toBe(false);
+
 });
 
 //
