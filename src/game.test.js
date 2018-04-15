@@ -217,6 +217,23 @@ it('test cascade exposed cells', () => {
 
 });
 
+it('tests BoardModel.forEachCell()', () => {
+   let board = new BoardModel(3,3,2);
+   board.populateBoard();
+
+   let exposedCells = 0;
+   let mines = 0;
+
+   board.forEachCell((cell) => {
+       if(cell.exposed === true)
+           exposedCells++;
+       if(cell.mine === true)
+           mines++;
+   })
+
+    expect(exposedCells).toBe(0);
+   expect(mines).toBe(2);
+});
 //
 //
 // /**
