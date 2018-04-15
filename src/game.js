@@ -191,12 +191,13 @@ export class BoardModel {
             
         } else if(this.cells[x][y].surrondingMines > 0) {
             this.cells[x][y].exposeCell();
-            this.cascadeExposeCell(x,y);
+
 
             return 'ok';
 
         } else {
             this.cells[x][y].exposeCell();
+            this.cascadeExposeCell(x,y);
 
             return 'ok';
         }
@@ -228,7 +229,20 @@ export class BoardModel {
     }
 
     cascadeExposeCell(x, y) {
+        let toExpose = this.findCellNeighbors(x,y);
 
+        toExpose.forEach(([x,y]) => {
+            const cell = this.cells[x][y];
+
+            if(!cell.mine && !cell.exposed) {
+
+                cell.exposed = true;
+
+                if(cell.surrondingMines === 0) {
+                    this.cascadeExposeCell(x, y);
+                }
+            }
+        });
     }
 
     flagMine(x,y) {
