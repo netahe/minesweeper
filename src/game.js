@@ -124,10 +124,8 @@ export class BoardModel {
             // A board that's completely covered with mines is technically possible to create, but why?
             throw new RangeError("Too many mines");
 
-        } else if(width > 50 || height > 50) {
-            // The implementation of minesweeper on my computer let you define arbitrarily large boards,
-            // and it really fucks with your computer. I think board of size 50 * 50 = 2500 is large enough boundary for
-            // a game.
+        } else if(width > 300 || height > 300) {
+
             throw RangeError("Board is too large");
         }
     }
