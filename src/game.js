@@ -268,8 +268,16 @@ export class BoardModel {
             return true;
         else {return false;}
     }
-}
 
+    forEachCell(func) {
+        for(let x=0; x < this.rows; x++) {
+            for(let y=0; y < this.cols; y++) {
+                func(this.cells[x][y]);
+            }
+        }
+
+    }
+}
 
 
 // return a random integer in  [0, range)
