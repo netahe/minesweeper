@@ -172,7 +172,7 @@ export class BoardModel {
                     // count how many mines border the cell
                     this.cells[i][j].markNeighborMines(
                         neighbors
-                            .filter(point => this.cells[point[0]][point[1]].haveMine()).length
+                            .filter(([x,y]) => this.cells[x][y].haveMine()).length
 
                     )
                 }
@@ -220,10 +220,10 @@ export class BoardModel {
             [nextRow, nextCol]];
 
         res = res
-            .filter(point => point[0] >= 0)
-            .filter(point => point[0] < this.rows)
-            .filter(point => point[1] >= 0)
-            .filter(point => point[1] < this.cols);
+            .filter(([x,y]) => x >= 0)
+            .filter(([x,y]) => x < this.rows)
+            .filter(([x,y]) => y >= 0)
+            .filter(([x,y]) => y < this.cols);
 
 
         return res;
