@@ -184,19 +184,21 @@ export class BoardModel {
     }
 
     exposeCell(x,y) {
-        if(this.cells[x][y].haveMine()) {
-            this.cells[x][y].exposeCell();
+        const cell = this.cells[x][y];
+
+        if(cell.haveMine()) {
+            cell.exposeCell();
 
             return 'gameOver';
             
-        } else if(this.cells[x][y].surrondingMines > 0) {
-            this.cells[x][y].exposeCell();
+        } else if(cell.surrondingMines > 0) {
+            cell.exposeCell();
 
 
             return 'ok';
 
         } else {
-            this.cells[x][y].exposeCell();
+            cell.exposeCell();
             this.cascadeExposeCell(x,y);
 
             return 'ok';
