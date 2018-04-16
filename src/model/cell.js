@@ -1,34 +1,30 @@
 export class CellModel {
     constructor() {
-        this.mine = false;
-        this.exposed = false;
-        this.surrondingMines = 0;
-        this.flag = false;
+        this._haveMine = false;
+        this._isExposed = false;
+        this._hints = 0;
+        this._isFlagged = false;
     }
 
-    haveMine() {
-        return this.mine;
-    }
+    get haveMine () {return this._haveMine};
 
-    plantMine() {
-        this.mine = true;
-    }
+    // once we set a mine, we're not going to remove it
+    set haveMine (val) {
+        if(this._haveMine === true)
+            return;
+        else {
+            this._haveMine = true;
+        }
+    };
 
-    markNeighborMines(num) {
-        this.surrondingMines = num;
-    }
+    get isExposed () {return this._isExposed};
+    set isExposed (val) {this._isExposed = val};
 
-    countNeighborMines() {
-        return this.surrondingMines;
-    }
+    get hints () { return this._hints };
+    set hints (val) {this._hints = val};
 
-    exposeCell() {
-        this.exposed = true;
-    }
-
-    flagMine() {
-        this.flag = true;
-    }
+    get isFlagged() { return this._isFlagged};
+    set isFlagged(val) {this._isFlagged = val};
 
     unflagMine() {
         this.flag = false;

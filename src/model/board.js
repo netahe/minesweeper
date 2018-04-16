@@ -4,7 +4,7 @@ import {CellModel} from "./cell";
 export class BoardModel {
     constructor(width, height, mines) {
 
-        this.validate(width, height, mines);
+        BoardModel.validate(width, height, mines);
 
         this.cols = width;
         this.rows = height;
@@ -23,7 +23,8 @@ export class BoardModel {
         }
     }
 
-    validate(width, height, mines) {
+    // TODO: more expressive errors
+    static validate(width, height, mines) {
         if(width <= 0 || height <= 0 || mines <= 0) {
             throw new RangeError("0 dimension");
 
@@ -44,28 +45,29 @@ export class BoardModel {
         for(let i=0; i < this.mines; i++) {
 
             // we want exactly #mines mines, so we need to make sure we don't already
-            // have a mine in this location.
+            // have a _haveMine in this location.
             do {
                 row = randint(this.rows);
                 col = randint(this.cols);
 
-                // if the location *do* have a mine, we just generate another (row, col) point
-            } while( this.cells[row][col].haveMine())
+                // if the location *do* have a _haveMine, we just generate another (row, col) point
+            } while( this.cells[row][col].haveMine)
                 ;
 
-            // when we've found a clear spot, we put a mine in it
+            // when we've found a clear spot, we put a _haveMine in it
             this.plantMine(row, col);
         }
     }
 
+    // I use this function for debugging purposes, in real game, we'll generate mine locations randomlly.
     plantMine(x,y) {
-        this.cells[x][y].plantMine();
+        this.cells[x][y].haveMine = true;
     }
 
-    markNeighborOfMines() {
+    createHints() {
 
         this.forEachCell((x, y, cell) => {
-            if(cell.mine)
+            if(cell.haveMine)
                 return;
 
             let neighbors = this.findCellNeighbors(x,y);
@@ -75,14 +77,14 @@ export class BoardModel {
 
     populateBoard() {
         this.plantMines();
-        this.markNeighborOfMines();
+        this.createHints();
     }
 
     exposeCell(x,y) {
         const cell = this.cells[x][y];
+        cell.isExposed = true;
 
-        if(cell.haveMine()) {
-            cell.exposeCell();
+        if(cell.haveMine) {
 
             return 'gameOver';
 
@@ -99,6 +101,7 @@ export class BoardModel {
 
     }
 
+    // return the coordinates of all the cells that touches (x,y)
     findCellNeighbors(x, y) {
         let prevRow = x-1, nextRow = x+1, nextCol = y+1, prevCol = y-1;
 
@@ -122,15 +125,16 @@ export class BoardModel {
         return res;
     }
 
+    // recursively expose all cells that can be _isExposed
     cascadeExposeCell(x, y) {
         let toExpose = this.findCellNeighbors(x,y);
 
         toExpose.forEach(([x,y]) => {
             const cell = this.cells[x][y];
 
-            if(!cell.mine && !cell.exposed) {
+            if(!cell.haveMine && !cell.isExposed) {
 
-                cell.exposed = true;
+                cell.isExposed = true;
 
                 if(cell.hints === 0) {
                     this.cascadeExposeCell(x, y);
@@ -141,19 +145,19 @@ export class BoardModel {
 
     flagMine(x,y) {
 
-        if(!this.cells[x][y].exposed) {
-            this.cells[x][y].flagMine();
+        if(!this.cells[x][y].isExposed) {
+            this.cells[x][y].isFlagged = true;
 
             this.flags++;
         }
     }
 
-    allMinesDiscoverd() {
+    allMinesDiscovered() {
         let count = 0;
 
         for(let i=0; i < this.rows; i++) {
             for(let j=0; j < this.rows; j++) {
-                if(this.cells[i][j].flag && this.cells[i][j].haveMine()) {
+                if(this.cells[i][j]._isFlagged && this.cells[i][j].haveMine) {
                     count++;
                 }
             }
@@ -164,6 +168,7 @@ export class BoardModel {
         else {return false;}
     }
 
+    // shortcut function for when we want to iterate through the entire board
     forEachCell(func) {
         for(let x=0; x < this.rows; x++) {
             for(let y=0; y < this.cols; y++) {
