@@ -2,17 +2,27 @@ import React, { Component } from 'react';
 import './App.css';
 import {GameModel} from "./model/game";
 
+
+class Superman extends Component {
+    render() {
+        return(<form><input type="checkbox" id="superman"/><label htmlFor="superman">Superman</label></form>)
+    }
+
+    onChecked() {
+
+    }
+}
+
 class GameControls extends Component {
     render() {
         return(
         <header>
             <h1>Hello Minesweeper</h1>
             <form>
-                <label htmlFor="width">Width: </label><input id="width" type="number"/>
-                <label htmlFor="height">Height: </label><input id="height" type="number"/>
-                <label htmlFor="mines">Mines: </label><input id="mines" type="number"/>
+                <label htmlFor="width">Width: </label><input id="width" name="width" type="number"/>
+                <label htmlFor="height">Height: </label><input id="height" name="height" type="number"/>
+                <label htmlFor="mines">Mines: </label><input id="mines" name="mines" type="number"/>
                 <button onSubmit={this.props.onSubmit}>Start Game</button>
-
 
 
             </form>
@@ -52,7 +62,7 @@ class Game extends Component {
     return (
         <div>
             <GameControls onSubmit={this.startGame}/>
-
+            <Superman/>
             <Board board={this.gameModel.board} gameStarted={true}/>
 
         </div>
