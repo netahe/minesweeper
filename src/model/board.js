@@ -69,7 +69,7 @@ export class BoardModel {
                 return;
 
             let neighbors = this.findCellNeighbors(x,y);
-            cell.surrondingMines = neighbors.filter(([x,y]) => this.cells[x][y].mine).length;
+            cell.hints = neighbors.filter(([x,y]) => this.cells[x][y].haveMine).length;
         });
     }
 
@@ -86,14 +86,11 @@ export class BoardModel {
 
             return 'gameOver';
 
-        } else if(cell.surrondingMines > 0) {
-            cell.exposeCell();
-
+        } else if(cell.hints > 0) {
 
             return 'ok';
 
         } else {
-            cell.exposeCell();
             this.cascadeExposeCell(x,y);
 
             return 'ok';
@@ -135,7 +132,7 @@ export class BoardModel {
 
                 cell.exposed = true;
 
-                if(cell.surrondingMines === 0) {
+                if(cell.hints === 0) {
                     this.cascadeExposeCell(x, y);
                 }
             }
