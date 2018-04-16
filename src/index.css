@@ -3,3 +3,29 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+.cell {
+    height:2em;
+    width: 2em;
+    border: 1px solid black;
+    background-color: gainsboro;
+
+}
+
+.covered {
+    background-color: gray;
+}
+
+.board-row {
+    display: flex;
+}
+
+.mine {
+    background-color:red;
+}
+
+.number {
+    background-color: ghostwhite;
+}
+
+

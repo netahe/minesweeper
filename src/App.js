@@ -1,69 +1,134 @@
 import React, { Component } from 'react';
 import './App.css';
-import {GameModel} from "./game";
+import {GameModel} from "./model/game";
+
+class GameControls extends Component {
+    render() {
+        return(
+        <header>
+            <h1>Hello Minesweeper</h1>
+            <form>
+                <label htmlFor="width">Width: </label><input id="width" type="number"/>
+                <label htmlFor="height">Height: </label><input id="height" type="number"/>
+                <label htmlFor="mines">Mines: </label><input id="mines" type="number"/>
+                <button onSubmit={this.props.onSubmit}>Start Game</button>
+
+
+
+            </form>
+        </header>);
+    }
+}
 
 class Game extends Component {
   constructor(props) {
       super(props);
 
-      this.state = new GameModel();
+      this.state = {'gameStarted' : true};
+
+      this.gameModel = new GameModel();
+      this.gameModel.createBoard(200,200,10);
+      this.gameModel.populateBoard();
+
   }
 
-  createBoard(width, height, mines) {
-      return (<Board width={width} height={height} mines={mines} />);
+  startGame(width, height, mines) {
+    this.gameModel = new GameModel();
+    this.gameModel.createBoard(width, height, mines);
+    this.gameModel.populateBoard();
+
+    this.setState({board : this.gameModel.getSnapshot(), gameStarted : true });
   }
+
+  exposeCell(x,y) {
+      this.gameModel.exposeCell(x,y);
+
+      this.setState({board : this.gameModel.getSnapshot() });
+  }
+
+
 
   render() {
     return (
-      <header>
-      <h1>Hello Minesweeper</h1>
-          <form>
-              <label htmlFor="width">Width: </label><input id="width" type="number" />
-              <label htmlFor="height">Height: </label><input id="height" type="number"/>
-              <label htmlFor="mines">Mines: </label><input id="mines" type="number"/>
+        <div>
+            <GameControls onSubmit={this.startGame}/>
 
-          </form>
+            <Board board={this.gameModel.board} gameStarted={true}/>
 
-          {this.createBoard(8,10,10)}
-      </header>
-
-
+        </div>
 
     )
   }
 }
 
 class Board extends Component {
-    constructor(props) {
-      super(props);
-
-    }
-
-    onClick() {
-
-    }
-
     render() {
-      return (<div><p>Board with width={this.props.width} height={this.props.height} mines={this.props.mines}</p></div>);
+        if (this.props.gameStarted) {
+
+            const rows = this.props.board.cells.map((row) => <BoardRow row={row}/>);
+
+            return (
+                <div className="board">
+                    {rows}
+                </div>
+            );
+        } else {
+            return ( <div className="board" /> );
+        }
     }
 }
 
 
-class Cell extends Component {
-    paintMine() {
-      return (<div class="cell mine"></div>)
+
+class BoardRow extends Component {
+    render() {
+        const squares = this.props.row.map((sq) => <Square isExposed={sq.isExposed} haveMine={sq.haveMine} hints={sq.hints} />);
+
+        return(
+            <div className="board-row">
+                {squares}
+            </div>
+        );
     }
 
-    paintNumber() {
-      return (<div class="cell number"></div>)
+}
+
+class Square extends Component {
+
+    render() {
+
+        if( !this.props.isExposed ) {
+            return Square.renderCoveredCell();
+        }
+
+        if(this.props.haveMine) {
+            return Square.renderMine();
+        }
+
+        if(this.props.hints >= 0) {
+            return this.renderNumber();
+        }
+
+
+        return Square.renderEmptyCell();
+
     }
 
-    paintEmptyCell() {
-      return (<div class="cell empty"></div>)
+
+    static renderMine() {
+      return (<div className="cell mine" />)
     }
 
-    paintCoveredCell() {
-      return (<div class="cell covered"></div>)
+    renderNumber() {
+        return (<div className="cell number">{this.props.hints}</div>)
+    }
+
+    static renderEmptyCell() {
+      return (<div className="cell empty" />)
+    }
+
+    static renderCoveredCell() {
+      return (<div className="cell covered" />)
     }
  }
 
