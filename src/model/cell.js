@@ -26,7 +26,9 @@ export class CellModel {
     get isFlagged() { return this._isFlagged};
     set isFlagged(val) {this._isFlagged = val};
 
-    unflagMine() {
-        this.flag = false;
+
+    getSnapshot() {
+
+        return {'haveMine' : this.haveMine, 'isExposed' : this.isExposed, 'hints' : this.hints, 'isFlagged' : this.isFlagged};
     }
 }

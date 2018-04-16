@@ -38,6 +38,20 @@ export class BoardModel {
         }
     }
 
+    // make a copy of the current board state, we use it to render the board.
+    getSnapshot() {
+        // board
+        let res = this.cells.slice(0);
+
+        // copy the rows
+        this.cells.forEach((arr) => res.push(arr.slice(0)));
+
+        // copy the cells
+        this.forEachCell((x,y,cell) => {res[x][y] = cell.getSnapshot()});
+
+        return res;
+    }
+
     plantMines() {
         let row, col;
 

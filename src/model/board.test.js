@@ -54,12 +54,12 @@ it('test the creation of an empty board', () => {
     let board = new BoardModel(8,10,30);
 
     // first cell
-    expect(board.cells[0][0].mine).toBe(false);
-    expect(board.cells[0][0].exposed).toBe(false);
+    expect(board.cells[0][0]._haveMine).toBe(false);
+    expect(board.cells[0][0]._isExposed).toBe(false);
 
     // last cell
-    expect(board.cells[9][7].mine).toBe(false);
-    expect(board.cells[9][7].exposed).toBe(false);
+    expect(board.cells[9][7]._haveMine).toBe(false);
+    expect(board.cells[9][7]._isExposed).toBe(false);
 });
 
 it('test that the right number of mines are generated', () => {
@@ -71,7 +71,7 @@ it('test that the right number of mines are generated', () => {
     for(let i=0; i < board.rows; i++) {
         for(let j=0; j < board.cols; j++) {
 
-            if(board.cells[i][j].haveMine()) {
+            if(board.cells[i][j].haveMine) {
                 mineCount++;
             }
         }
@@ -92,18 +92,18 @@ it('make sure that neighboring mines are marked correctly', () => {
     board.plantMine(1,0);
     board.plantMine(2,0);
 
-    board.markNeighborOfMines(); // TODO: change the name of this function. It isn't very clear
+    board.createHints(); 
 
-    expect(board.cells[1][1].surrondingMines).toBe(3);
-    expect(board.cells[2][1].surrondingMines).toBe(2);
-    expect(board.cells[3][1].surrondingMines).toBe(1);
+    expect(board.cells[1][1].hints).toBe(3);
+    expect(board.cells[2][1].hints).toBe(2);
+    expect(board.cells[3][1].hints).toBe(1);
 
-    expect(board.cells[0][2].surrondingMines).toBe(0);
-    expect(board.cells[3][3].surrondingMines).toBe(0);
+    expect(board.cells[0][2].hints).toBe(0);
+    expect(board.cells[3][3].hints).toBe(0);
 
 });
 
-it('test cascade exposed cells', () => {
+it('test cascade isExposed cells', () => {
     /**
      * x 2 o o
      * x 3 o o
@@ -115,31 +115,31 @@ it('test cascade exposed cells', () => {
     board.plantMine(1,0);
     board.plantMine(2,0);
 
-    board.markNeighborOfMines();
+    board.createHints();
 
     board.exposeCell(0,3);
 
-    // all three righmost columns should be exposed
-    expect(board.cells[0][1].exposed).toBe(true);
-    expect(board.cells[1][1].exposed).toBe(true);
-    expect(board.cells[2][1].exposed).toBe(true);
-    expect(board.cells[3][1].exposed).toBe(true);
+    // all three righmost columns should be _isExposed
+    expect(board.cells[0][1].isExposed).toBe(true);
+    expect(board.cells[1][1].isExposed).toBe(true);
+    expect(board.cells[2][1].isExposed).toBe(true);
+    expect(board.cells[3][1].isExposed).toBe(true);
 
-    expect(board.cells[0][2].exposed).toBe(true);
-    expect(board.cells[1][2].exposed).toBe(true);
-    expect(board.cells[2][2].exposed).toBe(true);
-    expect(board.cells[3][2].exposed).toBe(true);
+    expect(board.cells[0][2].isExposed).toBe(true);
+    expect(board.cells[1][2].isExposed).toBe(true);
+    expect(board.cells[2][2].isExposed).toBe(true);
+    expect(board.cells[3][2].isExposed).toBe(true);
 
-    expect(board.cells[0][3].exposed).toBe(true);
-    expect(board.cells[1][3].exposed).toBe(true);
-    expect(board.cells[2][3].exposed).toBe(true);
-    expect(board.cells[3][3].exposed).toBe(true);
+    expect(board.cells[0][3].isExposed).toBe(true);
+    expect(board.cells[1][3].isExposed).toBe(true);
+    expect(board.cells[2][3].isExposed).toBe(true);
+    expect(board.cells[3][3].isExposed).toBe(true);
 
     // the leftmost column should remine hidden
-    expect(board.cells[0][0].exposed).toBe(false);
-    expect(board.cells[1][0].exposed).toBe(false);
-    expect(board.cells[2][0].exposed).toBe(false);
-    expect(board.cells[3][0].exposed).toBe(false);
+    expect(board.cells[0][0].isExposed).toBe(false);
+    expect(board.cells[1][0].isExposed).toBe(false);
+    expect(board.cells[2][0].isExposed).toBe(false);
+    expect(board.cells[3][0].isExposed).toBe(false);
 
 });
 
