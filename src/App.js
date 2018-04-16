@@ -1,145 +1,109 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import './App.css';
 import {GameModel} from "./model/game";
+import {GameControls} from "./components/game-controls";
+import {Board} from "./components/board";
+import {Superman} from "./components/superman";
 
 
-class Superman extends Component {
-    render() {
-        return(<form><input type="checkbox" id="superman"/><label htmlFor="superman">Superman</label></form>)
-    }
+class Error extends Component {
 
-    onChecked() {
-
-    }
 }
 
-class GameControls extends Component {
-    render() {
-        return(
-        <header>
-            <h1>Hello Minesweeper</h1>
-            <form>
-                <label htmlFor="width">Width: </label><input id="width" name="width" type="number"/>
-                <label htmlFor="height">Height: </label><input id="height" name="height" type="number"/>
-                <label htmlFor="mines">Mines: </label><input id="mines" name="mines" type="number"/>
-                <button onSubmit={this.props.onSubmit}>Start Game</button>
-
-
-            </form>
-        </header>);
-    }
-}
 
 class Game extends Component {
-  constructor(props) {
-      super(props);
+    constructor(props) {
+        super(props);
 
-      this.state = {'gameStarted' : true};
+        this.gameModel = new GameModel();
 
-      this.gameModel = new GameModel();
-      this.gameModel.createBoard(200,200,10);
-      this.gameModel.populateBoard();
+        this.state = {board: null, gameStarted: false};
 
-  }
+        this.startGame = this.startGame.bind(this);
 
-  startGame(width, height, mines) {
-    this.gameModel = new GameModel();
-    this.gameModel.createBoard(width, height, mines);
-    this.gameModel.populateBoard();
+        this.exposeCell = this.exposeCell.bind(this);
 
-    this.setState({board : this.gameModel.getSnapshot(), gameStarted : true });
-  }
-
-  exposeCell(x,y) {
-      this.gameModel.exposeCell(x,y);
-
-      this.setState({board : this.gameModel.getSnapshot() });
-  }
-
-
-
-  render() {
-    return (
-        <div>
-            <GameControls onSubmit={this.startGame}/>
-            <Superman/>
-            <Board board={this.gameModel.board} gameStarted={true}/>
-
-        </div>
-
-    )
-  }
-}
-
-class Board extends Component {
-    render() {
-        if (this.props.gameStarted) {
-
-            const rows = this.props.board.cells.map((row, index) => <BoardRow key={index.toString()} row={row}/>);
-
-            return (
-                <div className="board">
-                    {rows}
-                </div>
-            );
-        } else {
-            return ( <div className="board" /> );
-        }
     }
-}
 
 
+    componentDidMount() {
+        this.startGame(30, 16, 99);
+    }
 
-class BoardRow extends Component {
+    startGame(width, height, mines) {
+        // If we alrady had a game going, we want to end it
+        if (this.state.gameStarted) {
+            this.gameModel.endGame();
+        }
+
+        this.gameModel.createBoard(width, height, mines);
+        this.gameModel.populateBoard();
+        this.gameModel.startGame();
+
+        const snapshot = this.gameModel.getSnapshot();
+        this.setState({board: snapshot, gameStarted: true, gameLost: false});
+
+    }
+
+    endGame() {
+        this.setState({gameStarted: false});
+    }
+
+    exposeCell(x, y) {
+        if(this.state.gameLost)
+            return;
+
+        try {
+            this.gameModel.exposeCell(x, y);
+
+        } catch (e) {
+
+            this.setState({gameLost: true});
+        }
+
+        this.setState({board: this.gameModel.getSnapshot()});
+    }
+
+    flagMine(x,y) {
+        if(this.state.gameLost)
+            return;
+
+        this.gameModel.flagMine(x,y);
+
+        this.setState({board : this.gameModel.getSnapshot()});
+    }
+
+    startSupermanMode() {
+        if(this.state.gameLost)
+            return;
+
+        let snapshot = this.gameModel.getSnapshot();
+
+        for (let i = 0; i < snapshot.length; i++)
+            for (let j = 0; j < snapshot[i].length; j++)
+                snapshot[i][j].isExposed = true;
+
+        this.setState({board: snapshot});
+    }
+
+
+    endSupermanMode() {
+        const snapshot = this.gameModel.getSnapshot();
+        this.setState({board: snapshot});
+    }
+
     render() {
-        const squares = this.props.row.map((sq, index) => <Square key={index.toString()} isExposed={sq.isExposed} haveMine={sq.haveMine} hints={sq.hints} />);
+        return (
+            <div>
+                <GameControls startGame={this.startGame}/>
+                <Superman onChecked={this.startSupermanMode} onUnChecked={this.endSupermanMode}/>
+                <Board exposeCell={this.exposeCell} board={this.state.board} gameStarted={this.state.gameStarted}/>
 
-        return(
-            <div className="board-row">
-                {squares}
             </div>
-        );
-    }
 
+        )
+    }
 }
 
-class Square extends Component {
-
-    render() {
-
-        if( !this.props.isExposed ) {
-            return Square.renderCoveredCell();
-        }
-
-        if(this.props.haveMine) {
-            return Square.renderMine();
-        }
-
-        if(this.props.hints >= 0) {
-            return this.renderNumber();
-        }
-
-
-        return Square.renderEmptyCell();
-
-    }
-
-
-    static renderMine() {
-      return (<div className="cell mine" />)
-    }
-
-    renderNumber() {
-        return (<div className="cell number">{this.props.hints}</div>)
-    }
-
-    static renderEmptyCell() {
-      return (<div className="cell empty" />)
-    }
-
-    static renderCoveredCell() {
-      return (<div className="cell covered" />)
-    }
- }
 
 export default Game;
