@@ -75,7 +75,7 @@ class Board extends Component {
     render() {
         if (this.props.gameStarted) {
 
-            const rows = this.props.board.cells.map((row) => <BoardRow row={row}/>);
+            const rows = this.props.board.cells.map((row, index) => <BoardRow key={index.toString()} row={row}/>);
 
             return (
                 <div className="board">
@@ -92,7 +92,7 @@ class Board extends Component {
 
 class BoardRow extends Component {
     render() {
-        const squares = this.props.row.map((sq) => <Square isExposed={sq.isExposed} haveMine={sq.haveMine} hints={sq.hints} />);
+        const squares = this.props.row.map((sq, index) => <Square key={index.toString()} isExposed={sq.isExposed} haveMine={sq.haveMine} hints={sq.hints} />);
 
         return(
             <div className="board-row">
