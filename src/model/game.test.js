@@ -20,7 +20,7 @@ it('test game lost', () => {
     let game = new GameModel();
     game.createBoard(3,3,1);
     game.board.plantMine(1,1);
-    game.board.markNeighborOfMines();
+    game.board.createHints();
 
     game.startGame();
     game.exposeCell(1,1);
@@ -34,7 +34,7 @@ it('test game won', () => {
     let game = new GameModel();
     game.createBoard(3,3,1);
     game.board.plantMine(1,1);
-    game.board.markNeighborOfMines();
+    game.board.createHints();
 
     game.startGame();
     game.flagMine(1,1);
@@ -56,7 +56,7 @@ it('test a whole game', () => {
 
 
         try {
-            console.log("Playing: (" + x + ", " + y + ")");
+            //console.log("Playing: (" + x + ", " + y + ")");
             game.exposeCell(x, y);
 
         } catch(e) {

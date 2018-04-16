@@ -1,6 +1,14 @@
 import {randint} from "../utils";
 import {CellModel} from "./cell";
 
+
+// TODO: Implements functionality to track number of flags used
+
+// TODO: clear interface between BoardModel and GameModel
+/**
+ * The state of a board is a union of the states of all its cells. The BoardModel updates its state in response
+ * to requests from the GameModel.
+ */
 export class BoardModel {
     constructor(width, height, mines) {
 

@@ -61,4 +61,9 @@ export class GameModel {
         }
 
     }
+
+    // creates a copy of the board for the GUI
+    getSnapshot() {
+        return this.board.getSnapshot();
+    }
 }

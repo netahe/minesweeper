@@ -160,13 +160,38 @@ it('tests BoardModel.forEachCell()', () => {
     let mines = 0;
 
     board.forEachCell((x, y, cell) => {
-        if(cell.exposed === true)
+        if(cell._isExposed === true)
             exposedCells++;
-        if(cell.mine === true)
+        if(cell._haveMine === true)
             mines++;
     });
 
     expect(exposedCells).toBe(0);
     expect(mines).toBe(2);
 });
+
+it('test hints generation for a small 3x3 board', () => {
+   let board = new BoardModel(3,3,1);
+
+   board.plantMine(1,1);
+   board.createHints();
+
+   expect(board.cells[0][0].hints).toBe(1);
+   expect(board.cells[2][2].hints).toBe(1);
+});
+
+it('renders large board', () => {
+    let board = new BoardModel(300,300,200);
+
+});
+
+it('test getSnapshot()', () => {
+    let board = new BoardModel(10,10, 5);
+    let snapshot = board.getSnapshot();
+
+    snapshot[0][0].haveMine = true;
+    expect(snapshot).not.toBe(board.cells);
+    expect(snapshot[0]).not.toBe(board.cells[0]);
+    expect(snapshot[5][5]).not.toBe(board.cells[0][0]);
+})
 
