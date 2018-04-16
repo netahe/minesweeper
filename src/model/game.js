@@ -7,6 +7,12 @@ export class GameOverError extends Error {
     }
 }
 
+
+/**
+ * The state of a game is either ended or ongoing, if it is ended, it is either won or lost.
+ * at every step of the game, the GameModel sends a request to the BoardModel to update its state,
+ * and changes the game state according to the response from the BoardModel.
+ */
 export class GameModel {
     constructor() {
         this._board = null;
@@ -16,9 +22,8 @@ export class GameModel {
 
     createBoard(width, height, mines) {
         this.board = new BoardModel(width, height, mines);
-
-
     }
+
     get board () {return this._board};
     set board (board) {this._board = board};
 
@@ -50,7 +55,7 @@ export class GameModel {
     flagMine(x, y) {
         this.board.flagMine(x,y);
 
-        if(this.board.allMinesDiscoverd()) {
+        if(this.board.allMinesDiscovered()) {
             this.gameWon = true;
             this.endGame();
         }
