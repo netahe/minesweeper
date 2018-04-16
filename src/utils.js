@@ -1,6 +1,7 @@
 import {BoardModel} from "./model/board";
 
 const GAMEOVER = Symbol();
+const GAMEWON = Symbol();
 
 const NUMBER = Symbol();
 const MINE = Symbol();
