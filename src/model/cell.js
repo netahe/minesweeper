@@ -10,11 +10,7 @@ export class CellModel {
 
     // once we set a mine, we're not going to remove it
     set haveMine (val) {
-        if(this._haveMine === true)
-            return;
-        else {
-            this._haveMine = true;
-        }
+        this._haveMine = val;
     };
 
     get isExposed () {return this._isExposed};
@@ -28,7 +24,12 @@ export class CellModel {
 
 
     getSnapshot() {
+        let res = new CellModel();
+        res.haveMine = this.haveMine;
+        res.isExposed = this.isExposed;
+        res.hints = this.hints;
+        res.isFlagged = this.isFlagged;
 
-        return {'haveMine' : this.haveMine, 'isExposed' : this.isExposed, 'hints' : this.hints, 'isFlagged' : this.isFlagged};
+        return res;
     }
 }
