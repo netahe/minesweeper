@@ -4,7 +4,8 @@ import {GameModel} from "./model/game";
 import {GameControls} from "./components/game-controls";
 import {Board} from "./components/board";
 import {Superman} from "./components/superman";
-
+import {FlagCount} from "./components/flag-count";
+import {NotEnoughFlags, SteppedOnMine} from "./model/errors";
 
 class Error extends Component {
 
@@ -50,6 +51,7 @@ class Game extends Component {
     }
 
     exposeCell(x, y) {
+        // If the game is already lost, there's no point in forwording moves to the game model
         if(this.state.gameLost)
             return;
 
@@ -57,20 +59,63 @@ class Game extends Component {
             this.gameModel.exposeCell(x, y);
 
         } catch (e) {
+            if(e instanceof SteppedOnMine) {
+                this.setState({gameLost: true});
 
-            this.setState({gameLost: true});
+                // Unknown error, We don't really know how to deal with that
+            } else {
+
+                throw e;
+            }
+
+            // regardless of the result of the move, always update the board
+        } finally {
+            this.setState({board: this.gameModel.getSnapshot()});
         }
 
-        this.setState({board: this.gameModel.getSnapshot()});
     }
 
-    flagMine(x,y) {
+    flagCell(x,y) {
+
         if(this.state.gameLost)
             return;
 
-        this.gameModel.flagMine(x,y);
+        try {
+            this.gameModel.flagCell(x, y);
 
-        this.setState({board : this.gameModel.getSnapshot()});
+        } catch(e) {
+            if(e instanceof NotEnoughFlags) {
+
+
+                // We use the same controls for flagging and unflagging cells, so if a cell is already flagged, we just unflag it
+            } else if(e instanceof CellAlreadyFlagged) {
+                this.unflagCell(x,y);
+
+            } else if(e instanceof GameWon) {
+                this.setState({gameWon : true});
+
+                // Unknown error, We don't really know how to deal with that
+            } else {
+                throw e;
+            }
+
+        } finally {
+            this.setState({board : this.gameModel.getSnapshot(), flags : this.gameModel.getFlags()});
+        }
+
+
+    }
+
+    unflagCell(x,y) {
+        try {
+            this.gameModel.unflagCell(x,y);
+
+        } catch(e) {
+
+        } finally {
+            this.setState({board : this.gameModel.getSnapshot(), flags : this.gameModel.flags});
+        }
+
     }
 
     startSupermanMode() {

@@ -7,7 +7,6 @@ export class GameOverError extends Error {
     }
 }
 
-
 /**
  * The state of a game is either ended or ongoing, if it is ended, it is either won or lost.
  * at every step of the game, the GameModel sends a request to the BoardModel to update its state,
@@ -32,15 +31,13 @@ export class GameModel {
     }
 
     exposeCell(x, y) {
-        if( this.gameOver === true) {
-            throw new GameOverError();
-        }
+        const res = this.board.exposeCell(x,y);
 
-        let result = this.board.exposeCell(x,y);
-        if(result === 'gameOver') {
-            this.gameWon = false;
-
-            this.endGame();
+        switch(res) {
+            case GameState.STEPPED_ON_MINE:
+                break;
+            case GameState.OK:
+                break;
         }
     }
 
@@ -59,7 +56,6 @@ export class GameModel {
             this.gameWon = true;
             this.endGame();
         }
-
     }
 
     // creates a copy of the board for the GUI
