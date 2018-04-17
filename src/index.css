@@ -25,7 +25,39 @@ body {
 }
 
 .number {
-    background-color: ghostwhite;
+    font-size: 1em;
+    font-weight: bold;
 }
 
+.one {
+    color:blue;
+}
+
+.two {
+    color: green;
+}
+
+.three {
+    color: red;
+}
+
+.four {
+    color: purple;
+}
+
+.five {
+    color: brown;
+}
+
+.six {
+    color: turquoise;
+}
+
+.seven {
+    color: black;
+}
+
+.eight {
+    color: darkslategray;
+}
 
