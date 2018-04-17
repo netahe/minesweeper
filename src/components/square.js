@@ -21,7 +21,7 @@ export class Square extends Component {
             return Square.renderMine();
         }
 
-        if(this.props.square.hints >= 0) {
+        if(this.props.square.hints > 0) {
             return this.renderNumber();
         }
 
@@ -38,7 +38,26 @@ export class Square extends Component {
     }
 
     renderNumber() {
-        return (<div className="cell number">{this.props.square.hints}</div>)
+        const hints = this.props.square.hints;
+
+        switch(hints) {
+            case 1:
+                return (<div className="cell number one">{this.props.square.hints}</div>);
+            case 2:
+                return (<div className="cell number two">{this.props.square.hints}</div>);
+            case 3:
+                return (<div className="cell number three">{this.props.square.hints}</div>);
+            case 4:
+                return (<div className="cell number four">{this.props.square.hints}</div>);
+            case 5:
+                return (<div className="cell number five">{this.props.square.hints}</div>);
+            case 6:
+                return (<div className="cell number six">{this.props.square.hints}</div>);
+            case 7:
+                return (<div className="cell number seven">{this.props.square.hints}</div>);
+            case 8:
+                return (<div className="cell number eight">{this.props.square.hints}</div>);
+        }
     }
 
     static renderEmptyCell() {
