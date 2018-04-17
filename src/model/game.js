@@ -1,4 +1,5 @@
-import {BoardModel} from "./board";
+import {BoardModel, GameState} from "./board";
+import {GameWon, NotEnoughFlags, SteppedOnMine} from "./errors";
 
 export class GameOverError extends Error {
     constructor() {
@@ -35,7 +36,8 @@ export class GameModel {
 
         switch(res) {
             case GameState.STEPPED_ON_MINE:
-                break;
+                throw new SteppedOnMine('You lost!!!');
+
             case GameState.OK:
                 break;
         }
@@ -49,12 +51,33 @@ export class GameModel {
         this.gameOver = true;
     }
 
-    flagMine(x, y) {
-        this.board.flagMine(x,y);
+    unflagCell(x,y) {
+        const res = this.board.unflagCell(x,y);
 
-        if(this.board.allMinesDiscovered()) {
-            this.gameWon = true;
-            this.endGame();
+        switch (res) {
+            case GameState.CELL_NOT_FLAGGED:
+                this.flagCell(x,y);
+                break;
+            case GameState.OK:
+                break;
+        }
+    }
+
+    flagCell(x, y) {
+        const res = this.board.flagMine(x,y);
+
+        switch(res) {
+            case GameState.ALL_MINES_FLAGGED:
+                throw new GameWon('You win!!!');
+
+            case GameState.TOO_MANY_FLAGS:
+                throw new NotEnoughFlags();
+
+            case GameState.CELL_ALREADY_FLAGGED:
+                this.unflagCell(x,y);
+
+            case GameState.OK:
+                break;
         }
     }
 

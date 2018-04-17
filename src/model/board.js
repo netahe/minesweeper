@@ -1,14 +1,22 @@
-import {randint} from "../utils";
+import {randint} from "../utils/utils";
 import {CellModel} from "./cell";
-
 
 // TODO: Implements functionality to track number of flags used
 
-// TODO: clear interface between BoardModel and GameModel
 /**
  * The state of a board is a union of the states of all its cells. The BoardModel updates its state in response
  * to requests from the GameModel.
  */
+
+export const GameState = {
+    'STEPPED_ON_MINE'       : Symbol(),
+    'OK'                    : Symbol(),
+    'ALL_MINES_FLAGGED'     : Symbol(),
+    'TOO_MANY_FLAGS'        : Symbol(),
+    'CELL_ALREADY_FLAGGED'  : Symbol(),
+    'CELL_NOT_FLAGGED'      : Symbol(),
+};
+
 export class BoardModel {
     constructor(width, height, mines) {
 
@@ -23,7 +31,7 @@ export class BoardModel {
         this.cells = Array(this.rows);
 
         for (let i=0 ; i < this.rows; i++) {
-            this.cells[i] = Array(this.rows);
+            this.cells[i] = Array(this.cols);
 
             for (let j = 0; j < this.cols; j++) {
                 this.cells[i][j] = new CellModel();
@@ -48,14 +56,17 @@ export class BoardModel {
 
     // make a copy of the current board state, we use it to render the board.
     getSnapshot() {
-        // board
-        let res = this.cells.slice(0);
+        let res = Array(this.rows);
 
-        // copy the rows
-        this.cells.forEach((arr) => res.push(arr.slice(0)));
+        for(let i=0; i < this.rows; i++) {
+            res[i] = Array(this.cols);
 
-        // copy the cells
-        this.forEachCell((x,y,cell) => {res[x][y] = cell.getSnapshot()});
+            for(let j=0; j < this.cols; j++) {
+                res[i][j] = this.cells[i][j].getSnapshot();
+            }
+
+        }
+
 
         return res;
     }
@@ -67,16 +78,16 @@ export class BoardModel {
         for(let i=0; i < this.mines; i++) {
 
             // we want exactly #mines mines, so we need to make sure we don't already
-            // have a _haveMine in this location.
+            // have a mine in this location.
             do {
                 row = randint(this.rows);
                 col = randint(this.cols);
 
-                // if the location *do* have a _haveMine, we just generate another (row, col) point
+                // if the location *do* have a mine, we just generate another (row, col) point
             } while( this.cells[row][col].haveMine)
                 ;
 
-            // when we've found a clear spot, we put a _haveMine in it
+            // when we've found a clear spot, we put a mine in it
             this.plantMine(row, col);
         }
     }
@@ -108,16 +119,16 @@ export class BoardModel {
 
         if(cell.haveMine) {
 
-            return 'gameOver';
+            return GameState.STEPPED_ON_MINE;
 
         } else if(cell.hints > 0) {
 
-            return 'ok';
+            return GameState.OK;
 
         } else {
             this.cascadeExposeCell(x,y);
 
-            return 'ok';
+            return GameState.OK;
         }
 
 
@@ -127,6 +138,7 @@ export class BoardModel {
     findCellNeighbors(x, y) {
         let prevRow = x-1, nextRow = x+1, nextCol = y+1, prevCol = y-1;
 
+        // all possible points
         let res = [
             [prevRow, prevCol],
             [prevRow, y],
@@ -137,6 +149,7 @@ export class BoardModel {
             [nextRow, y],
             [nextRow, nextCol]];
 
+        // filter points that are out of the bounds of the board
         res = res
             .filter(([x,y]) => x >= 0)
             .filter(([x,y]) => x < this.rows)
@@ -147,7 +160,7 @@ export class BoardModel {
         return res;
     }
 
-    // recursively expose all cells that can be _isExposed
+    // recursively expose all cells that can be exposed
     cascadeExposeCell(x, y) {
         let toExpose = this.findCellNeighbors(x,y);
 
@@ -165,12 +178,32 @@ export class BoardModel {
         });
     }
 
-    flagMine(x,y) {
+    flagCell(x,y) {
 
         if(!this.cells[x][y].isExposed) {
             this.cells[x][y].isFlagged = true;
 
             this.flags++;
+
+            if(this.allMinesDiscovered())
+                return GameState.ALL_MINES_FLAGGED;
+
+            else if(this.flags > this.mines) {
+                return GameState.TOO_MANY_FLAGS;
+            }
+
+        }
+
+        return GameState.OK;
+    }
+
+    unflagCell(x,y) {
+        if(this.cells[x][y].isFlagged)
+            return GameState.ALREADY_FLAGGED;
+
+        else {
+            this.cells[x][y].isFlagged = true;
+            return GameState.OK;
         }
     }
 
@@ -179,7 +212,7 @@ export class BoardModel {
 
         for(let i=0; i < this.rows; i++) {
             for(let j=0; j < this.rows; j++) {
-                if(this.cells[i][j]._isFlagged && this.cells[i][j].haveMine) {
+                if(this.cells[i][j].isFlagged && this.cells[i][j].haveMine) {
                     count++;
                 }
             }
