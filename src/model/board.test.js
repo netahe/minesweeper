@@ -143,26 +143,26 @@ it('test cascade isExposed cells', () => {
 
 });
 
-it('BoardModel.findCellNeighbors() returns a correct result', () => {
+it('BoardModel._findCellNeighbors() returns a correct result', () => {
     let board = new BoardModel(3,3,3);
 
-    expect(board.findCellNeighbors(0,0)).toEqual([[0,1], [1,0], [1,1]]);
+    expect(board._findCellNeighbors(0,0)).toEqual([[0,1], [1,0], [1,1]]);
 
-    expect(board.findCellNeighbors(1,1)).toEqual([[0,0], [0,1], [0,2], [1,0], [1,2], [2,0], [2,1], [2,2]]);
+    expect(board._findCellNeighbors(1,1)).toEqual([[0,0], [0,1], [0,2], [1,0], [1,2], [2,0], [2,1], [2,2]]);
 
 });
 
-it('tests BoardModel.forEachCell()', () => {
+it('tests BoardModel._forEachCell()', () => {
     let board = new BoardModel(3,3,2);
     board.populateBoard();
 
     let exposedCells = 0;
     let mines = 0;
 
-    board.forEachCell((x, y, cell) => {
-        if(cell._isExposed === true)
+    board._forEachCell((x, y, cell) => {
+        if(cell.isExposed === true)
             exposedCells++;
-        if(cell._haveMine === true)
+        if(cell.haveMine === true)
             mines++;
     });
 
@@ -185,13 +185,30 @@ it('renders large board', () => {
 
 });
 
-it('test getSnapshot()', () => {
-    let board = new BoardModel(10,10, 5);
+it('test BoardModel.getSnapshot()', () => {
+    let board = new BoardModel(3,3,1);
     let snapshot = board.getSnapshot();
 
     snapshot[0][0].haveMine = true;
-    expect(snapshot).not.toBe(board.cells);
     expect(snapshot[0]).not.toBe(board.cells[0]);
-    expect(snapshot[5][5]).not.toBe(board.cells[0][0]);
-})
+});
 
+it('tests flagging cell', () => {
+
+    let board = new BoardModel(3,3,1);
+
+    board.toggleFlag(0,0);
+
+    expect(board.cells[0][0].isFlagged).toBe(true);
+
+});
+
+it('tests unflagging cell', () => {
+
+    let board = new BoardModel(3,3,1);
+
+    board.toggleFlag(0,0);
+    board.toggleFlag(0,0)
+    expect(board.cells[0][0].isFlagged).toBe(false);
+
+});

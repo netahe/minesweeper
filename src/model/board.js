@@ -99,11 +99,11 @@ export class BoardModel {
 
     createHints() {
 
-        this.forEachCell((x, y, cell) => {
+        this._forEachCell((x, y, cell) => {
             if(cell.haveMine)
                 return;
 
-            let neighbors = this.findCellNeighbors(x,y);
+            let neighbors = this._findCellNeighbors(x,y);
             cell.hints = neighbors.filter(([x,y]) => this.cells[x][y].haveMine).length;
         });
     }
@@ -126,7 +126,7 @@ export class BoardModel {
             return GameState.OK;
 
         } else {
-            this.cascadeExposeCell(x,y);
+            this._cascadeExposeCell(x,y);
 
             return GameState.OK;
         }
@@ -135,7 +135,7 @@ export class BoardModel {
     }
 
     // return the coordinates of all the cells that touches (x,y)
-    findCellNeighbors(x, y) {
+    _findCellNeighbors(x, y) {
         let prevRow = x-1, nextRow = x+1, nextCol = y+1, prevCol = y-1;
 
         // all possible points
@@ -161,8 +161,8 @@ export class BoardModel {
     }
 
     // recursively expose all cells that can be exposed
-    cascadeExposeCell(x, y) {
-        let toExpose = this.findCellNeighbors(x,y);
+    _cascadeExposeCell(x, y) {
+        let toExpose = this._findCellNeighbors(x,y);
 
         toExpose.forEach(([x,y]) => {
             const cell = this.cells[x][y];
@@ -172,10 +172,39 @@ export class BoardModel {
                 cell.isExposed = true;
 
                 if(cell.hints === 0) {
-                    this.cascadeExposeCell(x, y);
+                    this._cascadeExposeCell(x, y);
                 }
             }
         });
+    }
+
+    toggleFlag(x,y) {
+        let cell = this.cells[x][y];
+
+        // if the cell is already exposed, flags are irrelevant
+        if(cell.isExposed)
+            return GameState.OK;
+
+        // there is a flag, so we want to remove it
+        if(cell.isFlagged) {
+            cell.isFlagged = false;
+            this.flags--;
+
+
+        // no flag, we want to add it
+        } else {
+            cell.isFlagged = true;
+            this.flags++;
+
+            if(this._allMinesDiscovered())
+                return GameState.ALL_MINES_FLAGGED;
+
+            if(this.flags > this.mines)
+                return GameState.TOO_MANY_FLAGS;
+
+            else
+                return GameState.OK;
+        }
     }
 
     flagCell(x,y) {
@@ -185,7 +214,7 @@ export class BoardModel {
 
             this.flags++;
 
-            if(this.allMinesDiscovered())
+            if(this._allMinesDiscovered())
                 return GameState.ALL_MINES_FLAGGED;
 
             else if(this.flags > this.mines) {
@@ -202,29 +231,26 @@ export class BoardModel {
             return GameState.ALREADY_FLAGGED;
 
         else {
-            this.cells[x][y].isFlagged = true;
+            this.cells[x][y].isFlagged = false;
             return GameState.OK;
         }
     }
 
-    allMinesDiscovered() {
-        let count = 0;
+    // all mines, and only the mines, are flagged
+    _allMinesDiscovered() {
+        let res = true;
 
-        for(let i=0; i < this.rows; i++) {
-            for(let j=0; j < this.rows; j++) {
-                if(this.cells[i][j].isFlagged && this.cells[i][j].haveMine) {
-                    count++;
-                }
-            }
-        }
+        // either we flagged a wrong cell, or we forget to flag a cell
+        this._forEachCell((x, y, cell) => {
+            if(cell.isFlagged && !cell.haveMine || !cell.isFlagged && cell.haveMine)
+                res = false;
+        });
 
-        if(count === this.mines)
-            return true;
-        else {return false;}
+        return res;
     }
 
     // shortcut function for when we want to iterate through the entire board
-    forEachCell(func) {
+    _forEachCell(func) {
         for(let x=0; x < this.rows; x++) {
             for(let y=0; y < this.cols; y++) {
                 func(x, y, this.cells[x][y]);

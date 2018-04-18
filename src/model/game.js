@@ -1,5 +1,5 @@
 import {BoardModel, GameState} from "./board";
-import {GameWon, NotEnoughFlags, SteppedOnMine} from "./errors";
+import {GameOver, GameWon, NotEnoughFlags, SteppedOnMine} from "./errors";
 
 export class GameOverError extends Error {
     constructor() {
@@ -17,7 +17,6 @@ export class GameModel {
     constructor() {
         this._board = null;
         this.gameOver = true;
-        this.gameWon = false;
     }
 
     createBoard(width, height, mines) {
@@ -27,15 +26,21 @@ export class GameModel {
     get board () {return this._board};
     set board (board) {this._board = board};
 
+    get flags() { return this.board.flags; }
+
     startGame() {
         this.gameOver = false;
     }
 
     exposeCell(x, y) {
+        if(this.gameOver)
+            throw new GameOver();
+
         const res = this.board.exposeCell(x,y);
 
         switch(res) {
             case GameState.STEPPED_ON_MINE:
+                this.endGame();
                 throw new SteppedOnMine('You lost!!!');
 
             case GameState.OK:
@@ -51,35 +56,23 @@ export class GameModel {
         this.gameOver = true;
     }
 
-    unflagCell(x,y) {
-        const res = this.board.unflagCell(x,y);
+
+    toggleFlag(x,y) {
+        const res = this.board.toggleFlag(x,y);
 
         switch (res) {
-            case GameState.CELL_NOT_FLAGGED:
-                this.flagCell(x,y);
-                break;
-            case GameState.OK:
-                break;
-        }
-    }
-
-    flagCell(x, y) {
-        const res = this.board.flagMine(x,y);
-
-        switch(res) {
-            case GameState.ALL_MINES_FLAGGED:
-                throw new GameWon('You win!!!');
-
             case GameState.TOO_MANY_FLAGS:
                 throw new NotEnoughFlags();
 
-            case GameState.CELL_ALREADY_FLAGGED:
-                this.unflagCell(x,y);
+            case GameState.ALL_MINES_FLAGGED:
+                this.endGame();
+                throw new GameWon('You win!!!');
 
-            case GameState.OK:
+            default:
                 break;
         }
     }
+
 
     // creates a copy of the board for the GUI
     getSnapshot() {
