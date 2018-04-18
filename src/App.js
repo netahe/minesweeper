@@ -5,10 +5,27 @@ import {GameControls} from "./components/game-controls";
 import {Board} from "./components/board";
 import {Superman} from "./components/superman";
 import {FlagCount} from "./components/flag-count";
-import {NotEnoughFlags, SteppedOnMine} from "./model/errors";
+import {GameState} from "./model/board";
 
-class Error extends Component {
+export class UserMessage extends Component {
+    render() {
 
+        if(this.props.msg === null) {
+            return (<div />);
+        } else {
+            if(this.props.msg.type === 'Error') {
+                return (<div className="error msg">{this.props.msg.txt}</div> );
+            }
+
+            if(this.props.msg.type === 'Warning') {
+                return (<div className="warning msg">{this.props.msg.txt}</div> );
+            }
+
+            if(this.props.msg.type === 'Info') {
+                return (<div className="info msg">{this.props.msg.txt}</div> );
+            }
+        }
+    }
 }
 
 
@@ -18,131 +35,137 @@ class Game extends Component {
 
         this.gameModel = new GameModel();
 
-        this.state = {board: null, gameStarted: false};
-
         this.startGame = this.startGame.bind(this);
 
         this.exposeCell = this.exposeCell.bind(this);
 
+        this.toggleFlag = this.toggleFlag.bind(this);
+
+        this.toggleSupermanMode = this.toggleSupermanMode.bind(this);
+
+        // The component render() method is called before we initialze the game board in componentDidMount(),
+        // so we want to delay it from rendering until we're ready with the board. GameStarted will be set to be true
+        // the first time we call startGame(), and stay so for the rest of the app life cycle.
+        this.state = {gameStarted: false, msg : null};
     }
 
-
     componentDidMount() {
-        this.startGame(30, 16, 99);
+        this.startGame(8, 8, 10);
     }
 
     startGame(width, height, mines) {
-        // If we alrady had a game going, we want to end it
-        if (this.state.gameStarted) {
-            this.gameModel.endGame();
-        }
-
         this.gameModel.createBoard(width, height, mines);
         this.gameModel.populateBoard();
         this.gameModel.startGame();
 
         const snapshot = this.gameModel.getSnapshot();
-        this.setState({board: snapshot, gameStarted: true, gameLost: false});
+        this.setState({
+            board: snapshot,
+            gameOver: false,
+            mines: mines,
+            flags: 0,
+            gameStarted: true,
+            msg : null,
+            superman: false
+        });
 
     }
 
     endGame() {
-        this.setState({gameStarted: false});
+        this.setState({gameOver: false});
     }
 
     exposeCell(x, y) {
-        // If the game is already lost, there's no point in forwording moves to the game model
-        if(this.state.gameLost)
+        // If the game is already lost, there's no point in forwarding moves to the game model
+        if (this.state.gameOver)
             return;
 
-        try {
-            this.gameModel.exposeCell(x, y);
+        const res = this.gameModel.exposeCell(x,y);
 
-        } catch (e) {
-            if(e instanceof SteppedOnMine) {
-                this.setState({gameLost: true});
+        switch (res) {
+            case GameState.STEPPED_ON_MINE:
+                const msg = {type : 'Error', txt : "Whoops, you lose."};
+                this.setState({gameOver: true, msg : msg});
+                break;
 
-                // Unknown error, We don't really know how to deal with that
-            } else {
+            case GameState.ALL_MINES_DISCOVERD:
+                const message = {type : 'Info', txt : 'You won, Yay!'};
+                this.setState({gameOver: true, msg : message});
+                break;
 
-                throw e;
-            }
-
-            // regardless of the result of the move, always update the board
-        } finally {
-            this.setState({board: this.gameModel.getSnapshot()});
+            default:
+                break;
         }
+
+        this.setState({board: this.gameModel.getSnapshot()});
+
 
     }
 
-    flagCell(x,y) {
-
-        if(this.state.gameLost)
+    toggleFlag(x, y) {
+        if(this.state.gameOver)
             return;
 
-        try {
-            this.gameModel.flagCell(x, y);
+        const res = this.gameModel.toggleFlag(x,y);
 
-        } catch(e) {
-            if(e instanceof NotEnoughFlags) {
+        switch(res) {
 
+            case GameState.TOO_MANY_FLAGS:
+                console.log("Too many flags");
+                const msg = {type: 'Warning', txt: "Take care, you've used all your flags."};
+                this.setState({msg : msg});
+                break;
 
-                // We use the same controls for flagging and unflagging cells, so if a cell is already flagged, we just unflag it
-            } else if(e instanceof CellAlreadyFlagged) {
-                this.unflagCell(x,y);
+            case GameState.ALL_MINES_FLAGGED:
+                const message = {type : 'Info', txt : 'You won, Yay!'};
+                this.setState({gameOver: true, msg : message});
+                break;
 
-            } else if(e instanceof GameWon) {
-                this.setState({gameWon : true});
+            default:
+                this.setState({msg : null});
 
-                // Unknown error, We don't really know how to deal with that
-            } else {
-                throw e;
-            }
-
-        } finally {
-            this.setState({board : this.gameModel.getSnapshot(), flags : this.gameModel.getFlags()});
         }
 
+        this.setState({board: this.gameModel.getSnapshot(), flags: this.gameModel.flags});
 
     }
 
-    unflagCell(x,y) {
-        try {
-            this.gameModel.unflagCell(x,y);
 
-        } catch(e) {
+    toggleSupermanMode() {
+        if(!this.state.superman) {
+            this.state.superman = true;
 
-        } finally {
-            this.setState({board : this.gameModel.getSnapshot(), flags : this.gameModel.flags});
+            let snapshot = this.gameModel.getSnapshot();
+
+            for (let i = 0; i < snapshot.length; i++)
+                for (let j = 0; j < snapshot[i].length; j++)
+                    snapshot[i][j].isExposed = true;
+
+            this.setState({board: snapshot});
+
+        } else {
+            this.state.superman = false;
+
+            const snapshot = this.gameModel.getSnapshot();
+            this.setState({board: snapshot});
         }
-
     }
 
-    startSupermanMode() {
-        if(this.state.gameLost)
-            return;
-
-        let snapshot = this.gameModel.getSnapshot();
-
-        for (let i = 0; i < snapshot.length; i++)
-            for (let j = 0; j < snapshot[i].length; j++)
-                snapshot[i][j].isExposed = true;
-
-        this.setState({board: snapshot});
-    }
-
-
-    endSupermanMode() {
-        const snapshot = this.gameModel.getSnapshot();
-        this.setState({board: snapshot});
-    }
 
     render() {
         return (
             <div>
                 <GameControls startGame={this.startGame}/>
-                <Superman onChecked={this.startSupermanMode} onUnChecked={this.endSupermanMode}/>
-                <Board exposeCell={this.exposeCell} board={this.state.board} gameStarted={this.state.gameStarted}/>
+                <Superman toggleSupermanMode={this.toggleSupermanMode} />
+                <FlagCount flags={this.state.flags} mines={this.state.mines}/>
+                <Board
+                    exposeCell={this.exposeCell}
+                    toggleFlag={this.toggleFlag}
+                    board={this.state.board}
+                    gameOver={this.state.gameOver}
+                    gameStarted={this.state.gameStarted}
+                />
+                <UserMessage msg={this.state.msg}/>
 
             </div>
 

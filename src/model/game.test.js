@@ -1,11 +1,9 @@
 import {GameModel, GameOverError} from "./game";
 import {randint} from "../utils/utils";
 
-import {GameOver, GameWon, NotEnoughFlags, SteppedOnMine} from "./errors";
+import {GameOver} from "./errors";
+import {GameState} from "./board";
 
-/**
- * as per Jest, when we test functions that generate exceptions, the argument to expect() should always be a callback.
- */
 
 it('test playing after game ended', () => {
     let game = new GameModel();
@@ -26,7 +24,7 @@ it('test game lost', () => {
 
     game.startGame();
 
-    expect(() => {game.exposeCell(1,1)}).toThrow(SteppedOnMine);
+    expect(game.exposeCell(1,1)).toBe(GameState.STEPPED_ON_MINE);
 
 
 });
@@ -40,7 +38,7 @@ it('test game won', () => {
     game.startGame();
 
 
-    expect(() => {game.toggleFlag(1,1)}).toThrow(GameWon);
+    expect(game.toggleFlag(1,1)).toBe(GameState.ALL_MINES_FLAGGED);
     expect(game.gameOver).toBe(true)
 
 
@@ -89,7 +87,7 @@ it('tests flagging all mines', () => {
     board.createHints();
 
 
-    expect(() => {game.toggleFlag(1,1)}).toThrow(GameWon);
+    expect(game.toggleFlag(1,1)).toBe(GameState.ALL_MINES_FLAGGED);
 });
 
 it('test putting too many flags', () => {
@@ -101,7 +99,30 @@ it('test putting too many flags', () => {
     board.plantMine(1,1);
     board.createHints();
 
+    game.toggleFlag(1,1);
+
+    expect(game.toggleFlag(0,0)).toBe(GameState.TOO_MANY_FLAGS);
+});
+
+it('test unflagging cell', () => {
+   let game = new GameModel();
+   game.createBoard(3,3,2);
+   game.populateBoard();
+
+   game.toggleFlag(0,0);
+   game.toggleFlag(0,0);
+
+   expect(game.board.cells[0][0].isFlagged).toBe(false);
+   expect(game.flags).toBe(0);
+});
+
+it('test flagging cell', () => {
+    let game = new GameModel();
+    game.createBoard(3,3,2);
+    game.populateBoard();
+
     game.toggleFlag(0,0);
 
-    expect(() => {game.toggleFlag(1,1)}).toThrow(NotEnoughFlags);
+    expect(game.board.cells[0][0].isFlagged).toBe(true);
+    expect(game.flags).toBe(1);
 });

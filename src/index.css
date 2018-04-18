@@ -61,3 +61,23 @@ body {
     color: darkslategray;
 }
 
+.flagged {
+    color: black;
+    font-weight: bold;
+}
+
+.msg {
+    font-size: 16pt;
+}
+
+.error {
+    color: red;
+}
+
+.info {
+    color: green;
+}
+
+.warning {
+    color: yellow;
+}

@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
+import {UserMessage} from "./App";
+import {shallow, mount, render} from 'enzyme';
+import {SteppedOnMine} from "./model/errors";
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
@@ -8,6 +11,12 @@ it('renders without crashing', () => {
   ReactDOM.unmountComponentAtNode(div);
 });
 
-it('renders a single cell', () => {
+it('renders error UserMessage', () => {
+    const msg = {type : 'Error', txt : 'this is some error'};
 
+    const div = document.createElement('div');
+    ReactDOM.render(<UserMessage msg={msg}/>, div);
+
+
+    ReactDOM.unmountComponentAtNode(div);
 });

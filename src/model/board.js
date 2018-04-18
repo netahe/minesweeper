@@ -15,6 +15,7 @@ export const GameState = {
     'TOO_MANY_FLAGS'        : Symbol(),
     'CELL_ALREADY_FLAGGED'  : Symbol(),
     'CELL_NOT_FLAGGED'      : Symbol(),
+    'ALL_MINES_DISCOVERD'   : Symbol()
 };
 
 export class BoardModel {
@@ -115,11 +116,18 @@ export class BoardModel {
 
     exposeCell(x,y) {
         const cell = this.cells[x][y];
+
+        // You can't expose a flagged cell
+        if(cell.isFlagged)
+            return GameState.OK;
+
         cell.isExposed = true;
 
         if(cell.haveMine) {
-
             return GameState.STEPPED_ON_MINE;
+
+        } else if(this._allMinesDiscoverd()) {
+            return GameState.ALL_MINES_DISCOVERD;
 
         } else if(cell.hints > 0) {
 
@@ -167,7 +175,7 @@ export class BoardModel {
         toExpose.forEach(([x,y]) => {
             const cell = this.cells[x][y];
 
-            if(!cell.haveMine && !cell.isExposed) {
+            if(!cell.haveMine && !cell.isExposed && !cell.isFlagged) {
 
                 cell.isExposed = true;
 
@@ -196,7 +204,7 @@ export class BoardModel {
             cell.isFlagged = true;
             this.flags++;
 
-            if(this._allMinesDiscovered())
+            if(this._allMinesFlagged())
                 return GameState.ALL_MINES_FLAGGED;
 
             if(this.flags > this.mines)
@@ -207,42 +215,27 @@ export class BoardModel {
         }
     }
 
-    flagCell(x,y) {
+    // all cells not containing mines are exposed
+    _allMinesDiscoverd() {
+        let res = true;
 
-        if(!this.cells[x][y].isExposed) {
-            this.cells[x][y].isFlagged = true;
+        this._forEachCell((x,y,cell) => {
+            if(!cell.haveMine && !cell.isExposed)
+                res = false;
+        });
 
-            this.flags++;
-
-            if(this._allMinesDiscovered())
-                return GameState.ALL_MINES_FLAGGED;
-
-            else if(this.flags > this.mines) {
-                return GameState.TOO_MANY_FLAGS;
-            }
-
-        }
-
-        return GameState.OK;
-    }
-
-    unflagCell(x,y) {
-        if(this.cells[x][y].isFlagged)
-            return GameState.ALREADY_FLAGGED;
-
-        else {
-            this.cells[x][y].isFlagged = false;
-            return GameState.OK;
-        }
+        return res;
     }
 
     // all mines, and only the mines, are flagged
-    _allMinesDiscovered() {
+    _allMinesFlagged() {
         let res = true;
 
-        // either we flagged a wrong cell, or we forget to flag a cell
+        // all cells are either flagged correctly, or exposed
         this._forEachCell((x, y, cell) => {
-            if(cell.isFlagged && !cell.haveMine || !cell.isFlagged && cell.haveMine)
+            if((cell.isFlagged && cell.haveMine )|| cell.isExposed)
+                ;
+            else
                 res = false;
         });
 

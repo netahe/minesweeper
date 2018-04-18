@@ -9,32 +9,39 @@ export class Square extends Component {
 
     render() {
 
-        if( !this.props.square.isExposed ) {
-            return this.renderCoveredCell();
+        if( this.props.square.isExposed ) {
+
+            if (this.props.square.haveMine) {
+                return Square.renderMine();
+            }
+
+            if (this.props.square.hints > 0) {
+                return this.renderNumber();
+            }
+
+            return Square.renderEmptyCell();
+
+        } else {
+            if(this.props.square.isFlagged)
+                return this.renderFlaggedCell();
+
+            else {
+                return this.renderCoveredCell();
+            }
         }
-
-        if(this.props.square.isFlagged) {
-            return Square.renderFlaggedCell();
-        }
-
-        if(this.props.square.haveMine) {
-            return Square.renderMine();
-        }
-
-        if(this.props.square.hints > 0) {
-            return this.renderNumber();
-        }
-
-
-        return Square.renderEmptyCell();
-
     }
 
-    handleClick() {
-        this.props.exposeCell(this.props.row, this.props.col);
+    handleClick(e) {
+        if(e.shiftKey) {
+            this.props.toggleFlag(this.props.row, this.props.col)
+        } else {
+            this.props.exposeCell(this.props.row, this.props.col);
+        }
     }
+
+
     static renderMine() {
-        return (<div  className="cell mine" />)
+        return (<div  className="cell mine" >*</div>)
     }
 
     renderNumber() {
@@ -68,7 +75,7 @@ export class Square extends Component {
         return (<div onClick={this.handleClick} className="cell covered" />)
     }
 
-    static renderFlaggedCell() {
-        return (<div className="cell flagged">flag</div>);
+    renderFlaggedCell() {
+        return (<div onClick={this.handleClick} className="cell covered flagged"> F </div>);
     }
 }

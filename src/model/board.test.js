@@ -208,7 +208,23 @@ it('tests unflagging cell', () => {
     let board = new BoardModel(3,3,1);
 
     board.toggleFlag(0,0);
-    board.toggleFlag(0,0)
+    board.toggleFlag(0,0);
     expect(board.cells[0][0].isFlagged).toBe(false);
+
+});
+
+it('test flag -> unflag -> expose', () => {
+   let board = new BoardModel(3,3,1);
+
+   board.populateBoard();
+
+   board.toggleFlag(0,0);
+   board.toggleFlag(0,0);
+   board.exposeCell(0,0);
+
+   expect(board.cells[0][0].isExposed).toBe(true);
+});
+
+it('test flagging too many cells', () => {
 
 });

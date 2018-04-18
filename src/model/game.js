@@ -1,5 +1,6 @@
 import {BoardModel, GameState} from "./board";
 import {GameOver, GameWon, NotEnoughFlags, SteppedOnMine} from "./errors";
+import Game from "../App";
 
 export class GameOverError extends Error {
     constructor() {
@@ -41,9 +42,13 @@ export class GameModel {
         switch(res) {
             case GameState.STEPPED_ON_MINE:
                 this.endGame();
-                throw new SteppedOnMine('You lost!!!');
+                return res;
 
-            case GameState.OK:
+            case GameState.ALL_MINES_DISCOVERD:
+                this.endGame();
+                return res;
+
+            default:
                 break;
         }
     }
@@ -62,11 +67,11 @@ export class GameModel {
 
         switch (res) {
             case GameState.TOO_MANY_FLAGS:
-                throw new NotEnoughFlags();
+                return res;
 
             case GameState.ALL_MINES_FLAGGED:
                 this.endGame();
-                throw new GameWon('You win!!!');
+                return res;
 
             default:
                 break;
@@ -74,7 +79,7 @@ export class GameModel {
     }
 
 
-    // creates a copy of the board for the GUI
+    // creates a copy of the board for the GUI to render
     getSnapshot() {
         return this.board.getSnapshot();
     }
