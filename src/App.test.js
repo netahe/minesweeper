@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import {UserMessage} from "./App";
+import {UserMessage} from "./components/user-message";
 import {shallow, mount, render} from 'enzyme';
 
 
