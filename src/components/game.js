@@ -67,7 +67,7 @@ export class Game extends Component {
                 this.setState({gameOver: true, msg : msg});
                 break;
 
-            case GameState.ALL_MINES_DISCOVERD:
+            case GameState.ALL_MINES_DISCOVERED:
                 const message = {type : 'Info', txt : 'You won, Yay!'};
                 this.setState({gameOver: true, msg : message});
                 break;
@@ -98,6 +98,8 @@ export class Game extends Component {
             case GameState.ALL_MINES_FLAGGED:
                 const message = {type : 'Info', txt : 'You won, Yay!'};
                 this.setState({gameOver: true, msg : message});
+
+                return res;
                 break;
 
             default:
