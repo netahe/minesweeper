@@ -1,7 +1,6 @@
 import {GameModel, GameOverError} from "./game";
 import {randint} from "../utils/utils";
 
-import {GameOver} from "./errors";
 import {GameState} from "./board";
 
 
@@ -13,7 +12,7 @@ it('test playing after game ended', () => {
     game.startGame();
     game.endGame();
 
-    expect(() => {game.exposeCell(1,1)}).toThrow(GameOver);
+    expect(() => {game.exposeCell(1,1)}).toThrow(GameOverError);
 });
 
 it('test game lost', () => {

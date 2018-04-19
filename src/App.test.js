@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import {UserMessage} from "./App";
 import {shallow, mount, render} from 'enzyme';
-import {SteppedOnMine} from "./model/errors";
+
 
 it('renders without crashing', () => {
   const div = document.createElement('div');

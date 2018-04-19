@@ -1,12 +1,8 @@
 import {BoardModel, GameState} from "./board";
-import {GameOver, GameWon, NotEnoughFlags, SteppedOnMine} from "./errors";
-import Game from "../App";
+
 
 export class GameOverError extends Error {
-    constructor() {
-        super();
 
-    }
 }
 
 /**
@@ -35,7 +31,7 @@ export class GameModel {
 
     exposeCell(x, y) {
         if(this.gameOver)
-            throw new GameOver();
+            throw new GameOverError();
 
         const res = this.board.exposeCell(x,y);
 

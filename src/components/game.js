@@ -32,7 +32,12 @@ export class Game extends Component {
     }
 
     startGame(width, height, mines) {
-        this.gameModel.createBoard(width, height, mines);
+        try {
+            this.gameModel.createBoard(width, height, mines);
+        } catch(RangeError) {
+            return;
+        }
+
         this.gameModel.populateBoard();
         this.gameModel.startGame();
 
