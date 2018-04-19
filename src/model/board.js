@@ -17,7 +17,7 @@ export const GameState = {
 export class BoardModel {
     constructor(width, height, mines) {
 
-        BoardModel.validate(width, height, mines);
+        BoardModel._validate(width, height, mines);
 
         this.cols = width;
         this.rows = height;
@@ -36,7 +36,7 @@ export class BoardModel {
         }
     }
 
-    static validate(width, height, mines) {
+    static _validate(width, height, mines) {
         if(width <= 0 || height <= 0 || mines <= 0) {
             throw new RangeError("0 dimension");
 
@@ -65,7 +65,7 @@ export class BoardModel {
         return res;
     }
 
-    plantMines() {
+    _plantMines() {
         let row, col;
 
         // generate #mines random locations to put mines in
@@ -82,16 +82,16 @@ export class BoardModel {
                 ;
 
             // when we've found a clear spot, we put a mine in it
-            this.plantMine(row, col);
+            this._plantMine(row, col);
         }
     }
 
     // I use this function for debugging purposes, in real game, we'll generate mine locations randomlly.
-    plantMine(x,y) {
+    _plantMine(x, y) {
         this.cells[x][y].haveMine = true;
     }
 
-    createHints() {
+    _createHints() {
 
         this._forEachCell((x, y, cell) => {
             if(cell.haveMine)
@@ -103,8 +103,8 @@ export class BoardModel {
     }
 
     populateBoard() {
-        this.plantMines();
-        this.createHints();
+        this._plantMines();
+        this._createHints();
     }
 
     exposeCell(x,y) {

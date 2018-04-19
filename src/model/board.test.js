@@ -88,11 +88,11 @@ it('make sure that neighboring mines are marked correctly', () => {
      */
 
     let board = new BoardModel(4,4,3);
-    board.plantMine(0,0);
-    board.plantMine(1,0);
-    board.plantMine(2,0);
+    board._plantMine(0,0);
+    board._plantMine(1,0);
+    board._plantMine(2,0);
 
-    board.createHints(); 
+    board._createHints();
 
     expect(board.cells[1][1].hints).toBe(3);
     expect(board.cells[2][1].hints).toBe(2);
@@ -111,11 +111,11 @@ it('test cascade isExposed cells', () => {
      * 1 1 o o
      */
     let board = new BoardModel(4,4,3);
-    board.plantMine(0,0);
-    board.plantMine(1,0);
-    board.plantMine(2,0);
+    board._plantMine(0,0);
+    board._plantMine(1,0);
+    board._plantMine(2,0);
 
-    board.createHints();
+    board._createHints();
 
     board.exposeCell(0,3);
 
@@ -173,8 +173,8 @@ it('tests BoardModel._forEachCell()', () => {
 it('test hints generation for a small 3x3 board', () => {
    let board = new BoardModel(3,3,1);
 
-   board.plantMine(1,1);
-   board.createHints();
+   board._plantMine(1,1);
+   board._createHints();
 
    expect(board.cells[0][0].hints).toBe(1);
    expect(board.cells[2][2].hints).toBe(1);

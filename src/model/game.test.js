@@ -18,8 +18,8 @@ it('test playing after game ended', () => {
 it('test game lost', () => {
     let game = new GameModel();
     game.createBoard(3,3,1);
-    game.board.plantMine(1,1);
-    game.board.createHints();
+    game.board._plantMine(1,1);
+    game.board._createHints();
 
     game.startGame();
 
@@ -31,8 +31,8 @@ it('test game lost', () => {
 it('test game won', () => {
     let game = new GameModel();
     game.createBoard(3,3,1);
-    game.board.plantMine(1,1);
-    game.board.createHints();
+    game.board._plantMine(1,1);
+    game.board._createHints();
 
     game.startGame();
     game.exposeCell(0,0);
@@ -90,8 +90,8 @@ it('test putting too many flags', () => {
 
     let board = game.board;
 
-    board.plantMine(1,1);
-    board.createHints();
+    board._plantMine(1,1);
+    board._createHints();
 
     game.toggleFlag(1,1);
 
