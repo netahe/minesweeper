@@ -64,7 +64,6 @@ it('test a whole game', () => {
 
 
         try {
-            //console.log("Playing: (" + x + ", " + y + ")");
             game.exposeCell(x, y);
 
         } catch(e) {
