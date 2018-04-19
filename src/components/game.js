@@ -100,7 +100,6 @@ export class Game extends Component {
                 this.setState({gameOver: true, msg : message});
 
                 return res;
-                break;
 
             default:
                 this.setState({msg : null});
