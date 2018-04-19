@@ -64,6 +64,8 @@ export class Square extends Component {
                 return (<div className="cell number seven">{this.props.square.hints}</div>);
             case 8:
                 return (<div className="cell number eight">{this.props.square.hints}</div>);
+            default:
+                return (<div />);
         }
     }
 

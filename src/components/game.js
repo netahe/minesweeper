@@ -54,16 +54,12 @@ export class Game extends Component {
 
     }
 
-    endGame() {
-        this.setState({gameOver: false});
-    }
-
     exposeCell(x, y) {
         // If the game is already lost, there's no point in forwarding moves to the game model
         if (this.state.gameOver)
             return;
 
-        const res = this.gameModel.exposeCell(x,y);
+        const res = this.gameModel.exposeCell(x, y);
 
         switch (res) {
             case GameState.STEPPED_ON_MINE:
@@ -116,7 +112,6 @@ export class Game extends Component {
 
     toggleSupermanMode() {
         if(!this.state.superman) {
-            this.state.superman = true;
 
             let snapshot = this.gameModel.getSnapshot();
 
@@ -124,13 +119,13 @@ export class Game extends Component {
                 for (let j = 0; j < snapshot[i].length; j++)
                     snapshot[i][j].isExposed = true;
 
-            this.setState({board: snapshot});
+            this.setState({board: snapshot, superman: true});
 
         } else {
-            this.state.superman = false;
+
 
             const snapshot = this.gameModel.getSnapshot();
-            this.setState({board: snapshot});
+            this.setState({board: snapshot, superman:false});
         }
     }
 

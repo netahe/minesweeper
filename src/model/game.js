@@ -1,9 +1,7 @@
 import {BoardModel, GameState} from "./board";
 
 
-export class GameOverError extends Error {
-
-}
+export class GameOverError extends Error {}
 
 /**
  * The state of a game is either ended or ongoing, if it is ended, it is either won or lost.
