@@ -15,9 +15,11 @@ Requirements
 exposed all cells not containing mines. You can win a game using flags, so the original requirement is still satisfied. I've added
 that option mostly because it's easier for me to play, and this is how it works in most Minesweeper implementations.
 
-2. Unlike in the working example, flagging more cells then there are mines raise a warning, rather then an error, to let the user amend the situation.
+2. to prevent a bug where the user accidently win by flagging all the mines, a game is won when all mines are flagged *and* all cells not containing mines are exposed.
+
+3. Unlike in the working example, flagging more cells then there are mines raise a warning, rather then an error, to let the user amend the situation.
 In any case, the user can't win a game if they over-used their flags.
 
-3. I couldn't satisfy the requirment to render 300 x 300 board, see: conversation with Itai.
+4. I couldn't satisfy the requirment to render 300 x 300 board, see: conversation with Itai.
 
-4. Otherwise, I believe I've satisfied all of the requirements.
+5. Otherwise, I believe I've satisfied all of the requirements.
