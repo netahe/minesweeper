@@ -1,4 +1,4 @@
-Implementation of minesweeper for Wix.
+Implementation of Minesweeper for Wix.
 
 Some notes
 ==========
