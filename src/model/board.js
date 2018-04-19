@@ -1,8 +1,6 @@
 import {randint} from "../utils/utils";
 import {CellModel} from "./cell";
 
-// TODO: Implements functionality to track number of flags used
-
 /**
  * The state of a board is a union of the states of all its cells. The BoardModel updates its state in response
  * to requests from the GameModel.
@@ -13,9 +11,7 @@ export const GameState = {
     'OK'                    : Symbol(),
     'ALL_MINES_FLAGGED'     : Symbol(),
     'TOO_MANY_FLAGS'        : Symbol(),
-    'CELL_ALREADY_FLAGGED'  : Symbol(),
-    'CELL_NOT_FLAGGED'      : Symbol(),
-    'ALL_MINES_DISCOVERD'   : Symbol()
+    'ALL_MINES_DISCOVERED'   : Symbol()
 };
 
 export class BoardModel {
@@ -40,7 +36,6 @@ export class BoardModel {
         }
     }
 
-    // TODO: more expressive errors
     static validate(width, height, mines) {
         if(width <= 0 || height <= 0 || mines <= 0) {
             throw new RangeError("0 dimension");
@@ -65,9 +60,7 @@ export class BoardModel {
             for(let j=0; j < this.cols; j++) {
                 res[i][j] = this.cells[i][j].getSnapshot();
             }
-
         }
-
 
         return res;
     }
@@ -127,7 +120,7 @@ export class BoardModel {
             return GameState.STEPPED_ON_MINE;
 
         } else if(this._allMinesDiscoverd()) {
-            return GameState.ALL_MINES_DISCOVERD;
+            return GameState.ALL_MINES_DISCOVERED;
 
         } else if(cell.hints > 0) {
 
@@ -138,8 +131,6 @@ export class BoardModel {
 
             return GameState.OK;
         }
-
-
     }
 
     // return the coordinates of all the cells that touches (x,y)
@@ -227,7 +218,7 @@ export class BoardModel {
         return res;
     }
 
-    // all mines, and only the mines, are flagged
+    // all mines, and only the mines, are flagged, everything else is exposed.
     _allMinesFlagged() {
         let res = true;
 
@@ -249,6 +240,5 @@ export class BoardModel {
                 func(x, y, this.cells[x][y]);
             }
         }
-
     }
 }

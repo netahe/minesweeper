@@ -38,7 +38,7 @@ export class GameModel {
                 this.endGame();
                 return res;
 
-            case GameState.ALL_MINES_DISCOVERD:
+            case GameState.ALL_MINES_DISCOVERED:
                 this.endGame();
                 return res;
 

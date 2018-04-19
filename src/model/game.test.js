@@ -35,7 +35,16 @@ it('test game won', () => {
     game.board.createHints();
 
     game.startGame();
+    game.exposeCell(0,0);
+    game.exposeCell(0,1);
+    game.exposeCell(0,2);
 
+    game.exposeCell(1,0);
+    game.exposeCell(1,2);
+
+    game.exposeCell(2,0);
+    game.exposeCell(2,1);
+    game.exposeCell(2,2);
 
     expect(game.toggleFlag(1,1)).toBe(GameState.ALL_MINES_FLAGGED);
     expect(game.gameOver).toBe(true)
@@ -75,19 +84,6 @@ it('tests making snapshot', () => {
    expect(snapshot).not.toBe(game.board.cells);
 });
 
-
-it('tests flagging all mines', () => {
-    let game = new GameModel();
-    game.createBoard(3,3,1);
-
-    let board = game.board;
-
-    board.plantMine(1,1);
-    board.createHints();
-
-
-    expect(game.toggleFlag(1,1)).toBe(GameState.ALL_MINES_FLAGGED);
-});
 
 it('test putting too many flags', () => {
     let game = new GameModel();
